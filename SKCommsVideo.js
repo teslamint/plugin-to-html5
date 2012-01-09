@@ -43,23 +43,22 @@ addKiller("SKCommsVideo", {
       var siteinfo = [];
 
       var title = result.getElementsByTagName("title")[0].textContent;
-      // if title exists, it's embedded player on the other instead Nate.
-      if (title) {
-        var org_url = result.getElementsByTagName("org_url")[0].textContent;
-        var org_name = "nate";
-        siteinfo.push({"name": org_name, "url": org_url});
-      }
+      var org_url = result.getElementsByTagName("org_url")[0].textContent;
+      var org_name = "nate";
       var mov_url = result.getElementsByTagName("mov_urls")[0].getElementsByTagName("url")[0].textContent;
       var thumb_url = result.getElementsByTagName("master_thumbnail")[0].getElementsByTagName("url")[0].textContent;
 
       callback({
         "playlist": [{
           "title": title,
-          "poster": decodeURIComponent(thumb_url),
-          "siteinfo": siteinfo,
+          "poster": thumb_url,
+          "siteinfo": [{
+            "name": org_name,
+            "url": org_url
+          }],
           "sources": [{
-            "url": decodeURIComponent(mov_url),
-            "format": extractExt(mov_url),
+            "url": mov_url,
+            "format": "MP4",
             "isNative": true
           }]
         }]
@@ -74,6 +73,7 @@ addKiller("SKCommsVideo", {
       "playlist": [{
         "sources": [{
           "url": "http://m.pann.nate.com/video/videoPlayUrlRealTime?video_id=" + videoid + "",
+          "format": "MP4",
           "isNative": true
         }]
       }]
@@ -86,6 +86,7 @@ addKiller("SKCommsVideo", {
       "playlist": [{
         "sources": [{
           "url": "http://ebc.egloos.com/exec/mobile/play_movile_video.php?movieid=" + videoid + "&blogid=" + blogid + "&serial=" + serial + "",
+          "format": "MP4"
           "isNative": true
         }]
       }]

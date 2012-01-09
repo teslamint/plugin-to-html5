@@ -9,21 +9,20 @@ addKiller("SKCommsVideo", {
 
   "process": function(data, callback) {
     var flashvars = parseFlashVariables(data.params.flashvars);
-    var mov_id, v_key, url;
+    var mov_id, v_key;
     // nate video
     if (flashvars) {
       mov_id = flashvars.mov_id;
       v_key = flashvars.v_key;
-      url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key + "&type=xml";
-      this.processNateVideoXml(url, callback);
+      this.processNateVideoXml(mov_id, v_key, callback);
     // embedded video player (egloos, cyworld, etc.)
     } else {
       var blogid, serial;
-      var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos)\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/i);
+      var match = data.src.replace(/\|/g, "%7C").match(/\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/i);
       if (match) {
-        blogid = match[4];
-        serial = match[5];
-        mov_id = match[6];
+        blogid = match[1];
+        serial = match[2];
+        mov_id = match[3];
         if (data.site == "egloos") {
           this.processEgloosVideoID(mov_id, blogid, serial, callback);
         } else {
@@ -36,9 +35,10 @@ addKiller("SKCommsVideo", {
   },
 
   // flash video via Nate video
-  "processNateVideoXml": function(xml_url, callback) {
+  "processNateVideoXml": function(mov_id, v_key, callback) {
+    var url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key + "&type=xml";
     var xhr = new XMLHttpRequest();
-    xhr.open('GET', xml_url, true);
+    xhr.open('GET', url, true);
     xhr.onload = function(event) {
       var result = event.target.responseXML.getElementsByTagName("movie")[0];
       var siteinfo = [];

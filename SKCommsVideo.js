@@ -24,13 +24,11 @@ addKiller("SKCommsVideo", {
         blogid = match[1];
         serial = match[2];
         mov_id = match[3];
-        if (blogid != "0") {
+        if (blogid && serial) {
           this.processEgloosVideoID(mov_id, blogid, serial, callback);
         } else {
           this.processNateVideoID(mov_id, callback);
         }
-      } else {
-        this.processNateVideoID(mov_id, callback);
       }
     }
   },
@@ -57,11 +55,11 @@ addKiller("SKCommsVideo", {
       callback({
         "playlist": [{
           "title": title,
-          "poster": thumb_url,
+          "poster": decodeURIComponent(thumb_url),
           "siteinfo": siteinfo,
           "sources": [{
-            "url": mov_url,
-            "format": extractExt(url),
+            "url": decodeURIComponent(mov_url),
+            "format": extractExt(mov_url),
             "isNative": true
           }]
         }]

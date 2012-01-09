@@ -35,27 +35,27 @@ addKiller("SKCommsVideo", {
         blogid = vs_keys.split("|")[1];
         mov_id = /mov_id=(\d+)/.match(headers)[1];
         v_key = /v_key=([0-9a-f]+)/.match(headers)[1];
-      }
-
-      var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos))\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
-      if (match) {
-        blogid = match[3];
-        serial = match[4];
-        vs_keys = blogid + "|" + serial;
-        mov_id = match[5];
-      }
-
-      if (v_key) {
-        if (data.site == "egloos") {
-          url = "http://v.egloos.com/xmovie_url.php?vs_id=egloos&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
-        } else {
-          url = "http://v.nate.com/xmovie_url.php?vs_id=movie&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
+        if (v_key) {
+          if (data.site == "egloos") {
+            url = "http://v.egloos.com/xmovie_url.php?vs_id=egloos&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
+          } else {
+            url = "http://v.nate.com/xmovie_url.php?vs_id=movie&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
+          }
+          this.processNateVideoXml(url, callback);
         }
-        this.processNateVideoXml(url, callback);
-      } else if (data.site == "egloos") {
-        this.processEgloosVideoID(blogid, serial, mov_id, callback);
       } else {
-        this.processNateVideoID(mov_id, callback);
+        var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos))\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
+        if (match) {
+          blogid = match[3];
+          serial = match[4];
+          vs_keys = blogid + "|" + serial;
+          mov_id = match[5];
+          if (data.site == "egloos") {
+            this.processEgloosVideoID(blogid, serial, mov_id, callback);
+          } else {
+            this.processNateVideoID(mov_id, callback);
+          }
+        }
       }
     }
   },

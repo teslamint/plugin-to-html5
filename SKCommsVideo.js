@@ -11,10 +11,10 @@ addKiller("SKCommsVideo", {
     var flashvars = parseFlashVariables(data.params.flashvars);
     var mov_id, v_key, url;
     // nate video
-    if (flashvars.mov_id && flashvars.v_key) {
+    if (flashvars) {
       mov_id = flashvars.mov_id;
       v_key = flashvars.v_key;
-      url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key;
+      url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key + "&type=xml";
       this.processNateVideoXml(url, callback);
     // embedded video player (egloos, cyworld, etc.)
     } else {

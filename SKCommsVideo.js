@@ -8,7 +8,7 @@ addKiller("SKCommsVideo", {
   },
 
   "process": function(data, callback) {
-    var flashvars = parseFlashVariables(data.params.flashvars);
+    var flashvars = parseFlashVariables(data.flashvars);
     var mov_id, v_key, url;
 	  // nate video
     if (flashvars.mov_id && flashvars.v_key) {
@@ -45,7 +45,7 @@ addKiller("SKCommsVideo", {
       // if title exists, it's embedded player on the other instead Nate.
       if (title) {
         var org_url = result.getElementsByTagName("org_url")[0].textContent;
-        var org_name = (/egloos\.com/.test(xml_url)) ? "egloos" : "nate";
+        var org_name = "nate";
         siteinfo.push({"name": org_name, "url": org_url});
       }
       var mov_url = result.getElementsByTagName("mov_urls")[0].getElementsByTagName("url")[0].textContent;

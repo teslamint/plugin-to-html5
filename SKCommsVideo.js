@@ -1,8 +1,7 @@
 addKiller("SKCommsVideo", {
   "canKill": function(data) {
-    var match = data.src.match(/(cyworld|nate|egloos)\.com/);
+    var match = /(dbi\.video\.cyworld|v\.nate|v\.egloos)\.com/.exec(data.src);
     if (match) {
-      data.site = match[1];
       return true;
     } else return false;
   },
@@ -11,19 +10,19 @@ addKiller("SKCommsVideo", {
     var flashvars = parseFlashVariables(data.params.flashvars);
     var mov_id, v_key;
     // nate video
-    if (flashvars) {
+    if (flashvars.mov_id) {
       mov_id = flashvars.mov_id;
       v_key = flashvars.v_key;
       this.processNateVideoXml(mov_id, v_key, callback);
     // embedded video player (egloos, cyworld, etc.)
     } else {
       var blogid, serial;
-      var match = data.src.replace(/\|/g, "%7C").match(/\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/i);
+      var match = data.src.replace(/\|/g, "%7C").match(/\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/ig);
       if (match) {
         blogid = match[1];
         serial = match[2];
         mov_id = match[3];
-        if (data.site == "egloos") {
+        if (blogid != "0") {
           this.processEgloosVideoID(mov_id, blogid, serial, callback);
         } else {
           this.processNateVideoID(mov_id, callback);
@@ -60,7 +59,7 @@ addKiller("SKCommsVideo", {
           "siteinfo": siteinfo,
           "sources": [{
             "url": mov_url,
-            "format": "MP4",
+            "format": extractExt(url),
             "isNative": true
           }]
         }]

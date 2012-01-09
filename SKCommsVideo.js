@@ -15,7 +15,7 @@ addKiller("SKCommsVideo", {
   "process": function(data, callback) {
     var flashvars = parseFlashVariables(data.params.flashvars);
     var mov_id, vs_keys, v_key, url;
-	// nate video
+	  // nate video
     if (flashvars.v_key) {
       mov_id = flashvars.mov_id;
       vs_keys = flashvars.vs_keys;
@@ -25,32 +25,37 @@ addKiller("SKCommsVideo", {
         url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key;
         this.processNateVideoXml(url, callback);
       }
-	// embedded video player (egloos, cyworld, etc.)
+	  // embedded video player (egloos, cyworld, etc.)
     } else {
       var blogid, serial;
-      var headers = this.getResponseHeader(data.src);
+      var headers = ""; //this.getResponseHeader(data.src);
       if (headers) {
+        vs_keys = /vs_keys=(0|[a-z]\d+%7C\d+)/.match(headers)[1];
+        serial = vs_keys.split("|")[0];
+        blogid = vs_keys.split("|")[1];
+        mov_id = /mov_id=(\d+)/.match(headers)[1];
         v_key = /v_key=([0-9a-f]+)/.match(headers)[1];
       }
 
       var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos))\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
       if (match) {
         blogid = match[3];
-        serial = match[4]
-        vs_keys = match[5];
-        mov_id = match[6];
-        if (v_key) {
-          if (data.site == "egloos") {
-            url = "http://v.egloos.com/xmovie_url.php?vs_id=egloos&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
-          } else {
-            url = "http://v.nate.com/xmovie_url.php?vs_id=movie&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
-          }
-          this.processNateVideoXml(url, callback);
-        } else if (data.site == "egloos") {
-          this.processEgloosVideoID(blogid, serial, mov_id, callback);
+        serial = match[4];
+        vs_keys = blogid + "|" + serial;
+        mov_id = match[5];
+      }
+
+      if (v_key) {
+        if (data.site == "egloos") {
+          url = "http://v.egloos.com/xmovie_url.php?vs_id=egloos&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
         } else {
-          this.processNateVideoID(mov_id, callback);
+          url = "http://v.nate.com/xmovie_url.php?vs_id=movie&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
         }
+        this.processNateVideoXml(url, callback);
+      } else if (data.site == "egloos") {
+        this.processEgloosVideoID(blogid, serial, mov_id, callback);
+      } else {
+        this.processNateVideoID(mov_id, callback);
       }
     }
   },
@@ -87,6 +92,7 @@ addKiller("SKCommsVideo", {
     xhr.send(null);
   },
 
+  // mobile video via Nate
   "processNateVideoID": function(videoid, callback) {
     callback({
       "playlist": [{
@@ -98,6 +104,7 @@ addKiller("SKCommsVideo", {
     });
   },
 
+  // mobile video via Egloos
   "processEgloosVideoID": function(videoid, blogid, serial, callback) {
     callback({
       "playlist": [{

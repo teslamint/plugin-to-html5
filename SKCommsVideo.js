@@ -22,11 +22,11 @@ addKiller("SKCommsVideo", {
 	  // embedded video player (egloos, cyworld, etc.)
     } else {
       var blogid, serial;
-      var headers = ""; //this.getResponseHeader(data.src);
+      var headers = this.getResponseHeader(data.src);
       if (headers) {
-        vs_keys = headers.match(/vs_keys=(0|[a-z]\d+%7C\d+)/)[1];
-        serial = vs_keys.split("|")[0];
-        blogid = vs_keys.split("|")[1];
+        serial = headers.match(/vs_keys=(0|[a-z]\d+)%7C(\d+)/)[2];
+        blogid = headers.match(/vs_keys=(0|[a-z]\d+)%7C(\d+)/)[1];
+        vs_keys = blogid + "%7C" + serial;
         mov_id = headers.match(/mov_id=(\d+)/)[1];
         v_key = headers.match(/v_key=([0-9a-f]+)/)[1];
         if (v_key) {
@@ -45,7 +45,7 @@ addKiller("SKCommsVideo", {
           vs_keys = blogid + "|" + serial;
           mov_id = match[6];
           if (data.site == "egloos") {
-            this.processEgloosVideoID(blogid, serial, mov_id, callback);
+            this.processEgloosVideoID(mov_id, blogid, serial, callback);
           } else {
             this.processNateVideoID(mov_id, callback);
           }

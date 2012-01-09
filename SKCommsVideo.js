@@ -44,20 +44,20 @@ addKiller("SKCommsVideo", {
 
       var title = result.getElementsByTagName("title")[0].textContent;
       var org_url = result.getElementsByTagName("org_url")[0].textContent;
-      var org_name = "nate";
+      var org_name = "Nate";
       var mov_url = result.getElementsByTagName("mov_urls")[0].getElementsByTagName("url")[0].textContent;
       var thumb_url = result.getElementsByTagName("master_thumbnail")[0].getElementsByTagName("url")[0].textContent;
 
       callback({
         "playlist": [{
           "title": title,
-          "poster": thumb_url,
+          "poster": decodeURIComponent(thumb_url),
           "siteinfo": [{
             "name": org_name,
-            "url": org_url
+            "url": decodeURIComponent(org_url)
           }],
           "sources": [{
-            "url": mov_url,
+            "url": decodeURIComponent(mov_url),
             "format": "MP4",
             "isNative": true
           }]

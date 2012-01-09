@@ -24,11 +24,13 @@ addKiller("SKCommsVideo", {
         blogid = match[4];
         serial = match[5];
         mov_id = match[6];
-        if (blogid != "0") {
+        if (data.site == "egloos") {
           this.processEgloosVideoID(mov_id, blogid, serial, callback);
         } else {
           this.processNateVideoID(mov_id, callback);
         }
+      } else {
+        this.processNateVideoID(mov_id, callback);
       }
     }
   },

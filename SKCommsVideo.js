@@ -9,7 +9,7 @@ addKiller("SKCommsVideo", {
 
   "process": function(data, callback) {
     var flashvars = parseFlashVariables(data.params.flashvars);
-    var mov_id, vs_keys, v_key, url;
+    var mov_id, v_key, url;
 	  // nate video
     if (flashvars.mov_id && flashvars.v_key) {
       mov_id = flashvars.mov_id;
@@ -19,12 +19,11 @@ addKiller("SKCommsVideo", {
 	  // embedded video player (egloos, cyworld, etc.)
     } else {
       var blogid, serial;
-      var headers = this.getResponseHeader(data.src);
       var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos)\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
       if (match) {
+        data.site = match[2];
         blogid = match[4];
         serial = match[5];
-        vs_keys = blogid + "|" + serial;
         mov_id = match[6];
         if (data.site == "egloos") {
           this.processEgloosVideoID(mov_id, blogid, serial, callback);

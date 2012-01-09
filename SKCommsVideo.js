@@ -118,7 +118,7 @@ addKiller("SKCommsVideo", {
   "getResponseHeader": function(src) {
     // trying to get response header
     var xhr = new XMLHttpRequest();
-    xhr.get('GET', src, false);
+    xhr.open('GET', src, false);
     xhr.send(null);
     return xhr.getAllResponseHeaders().toLowerCase();
   }

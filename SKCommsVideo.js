@@ -1,6 +1,6 @@
 addKiller("SKCommsVideo", {
   "canKill": function(data) {
-    var match = data.src.match(/(cyworld|nate|egloos)\.com/);
+    var match = data.src.match(/(cyworld|nate|egloos)\.com/ig);
     if (match) {
       data.site = match[1];
       return true;
@@ -15,7 +15,6 @@ addKiller("SKCommsVideo", {
       mov_id = flashvars.mov_id;
       vs_keys = flashvars.vs_keys;
       v_key = flashvars.v_key;
-      url = "";
       if (data.site == "nate") {
         url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key;
         this.processNateVideoXml(url, callback);
@@ -25,11 +24,11 @@ addKiller("SKCommsVideo", {
       var blogid, serial;
       var headers = ""; //this.getResponseHeader(data.src);
       if (headers) {
-        vs_keys = /vs_keys=(0|[a-z]\d+%7C\d+)/.match(headers)[1];
+        vs_keys = headers.match(/vs_keys=(0|[a-z]\d+%7C\d+)/)[1];
         serial = vs_keys.split("|")[0];
         blogid = vs_keys.split("|")[1];
-        mov_id = /mov_id=(\d+)/.match(headers)[1];
-        v_key = /v_key=([0-9a-f]+)/.match(headers)[1];
+        mov_id = headers.match(/mov_id=(\d+)/)[1];
+        v_key = headers.match(/v_key=([0-9a-f]+)/)[1];
         if (v_key) {
           if (data.site == "egloos") {
             url = "http://v.egloos.com/xmovie_url.php?vs_id=egloos&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;
@@ -41,10 +40,10 @@ addKiller("SKCommsVideo", {
       } else {
         var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos)\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
         if (match) {
-          blogid = match[3];
-          serial = match[4];
+          blogid = match[4];
+          serial = match[5];
           vs_keys = blogid + "|" + serial;
-          mov_id = match[5];
+          mov_id = match[6];
           if (data.site == "egloos") {
             this.processEgloosVideoID(blogid, serial, mov_id, callback);
           } else {
@@ -79,7 +78,7 @@ addKiller("SKCommsVideo", {
           "siteinfo": siteinfo,
           "sources": [{
             "url": mov_url,
-            "isNative": (/mp4/.test(mov_url)) ? true : false
+            "isNative": (/\.mp4$/.test(mov_url)) ? true : false
           }]
         }]
       });

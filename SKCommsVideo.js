@@ -21,11 +21,10 @@ addKiller("SKCommsVideo", {
       var blogid, serial;
       var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos)\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
       if (match) {
-        data.site = match[2];
         blogid = match[4];
         serial = match[5];
         mov_id = match[6];
-        if (data.site == "egloos") {
+        if (blogid != "0") {
           this.processEgloosVideoID(mov_id, blogid, serial, callback);
         } else {
           this.processNateVideoID(mov_id, callback);

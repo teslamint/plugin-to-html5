@@ -1,6 +1,6 @@
 addKiller("SKCommsVideo", {
   "canKill": function(data) {
-    var match = data.src.match(/(cyworld|nate|egloos)\.com/ig);
+    var match = data.src.match(/(cyworld|nate|egloos)\.com/);
     if (match) {
       data.site = match[1];
       return true;
@@ -8,18 +8,18 @@ addKiller("SKCommsVideo", {
   },
 
   "process": function(data, callback) {
-    var flashvars = parseFlashVariables(data.flashvars);
+    var flashvars = parseFlashVariables(data.params.flashvars);
     var mov_id, v_key, url;
-	  // nate video
+    // nate video
     if (flashvars.mov_id && flashvars.v_key) {
       mov_id = flashvars.mov_id;
       v_key = flashvars.v_key;
       url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key;
       this.processNateVideoXml(url, callback);
-	  // embedded video player (egloos, cyworld, etc.)
+    // embedded video player (egloos, cyworld, etc.)
     } else {
       var blogid, serial;
-      var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos)\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
+      var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos)\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/i);
       if (match) {
         blogid = match[4];
         serial = match[5];
@@ -58,7 +58,8 @@ addKiller("SKCommsVideo", {
           "siteinfo": siteinfo,
           "sources": [{
             "url": mov_url,
-            "isNative": (/\.mp4$/.test(mov_url)) ? true : false
+            "format": "MP4",
+            "isNative": true
           }]
         }]
       });

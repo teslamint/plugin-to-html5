@@ -33,6 +33,10 @@ addKiller("SKCommsVideo", {
     } else {
       var blogid, serial;
       var headers = this.getResponseHeader(data.src);
+      if (headers) {
+        v_key = /v_key=([0-9a-f]+)/.match(headers)[1];
+      }
+
       var match = data.src.replace(/\|/g, "%7C").match(/(dbi\.video|v)\.(cyworld|nate|egloos))\.com\/v\.sk\/(movie|egloos)\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
       // nate (pann, video, ...)
       if (match) {
@@ -40,8 +44,6 @@ addKiller("SKCommsVideo", {
         serial = match[4]
         vs_keys = match[5];
         mov_id = match[6];
-        v_key = /v_key=([0-9a-f]+)/.match(headers)[1];
-
         if (v_key) {
           if (data.site == "egloos") {
             url = "http://v.egloos.com/xmovie_url.php?vs_id=movie&vs_keys=" + vs_keys + "&mov_id=" + mov_id + "&v_key=" + v_key;

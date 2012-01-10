@@ -51,14 +51,14 @@ addKiller("SKCommsVideo", {
       callback({
         "playlist": [{
           "title": title,
-          "poster": decodeURIComponent(thumb_url),
+          "poster": thumb_url,
           "siteinfo": [{
             "name": org_name,
-            "url": decodeURIComponent(org_url)
+            "url": org_url
           }],
           "sources": [{
-            "url": decodeURIComponent(mov_url),
-            "format": "MP4",
+            "url": mov_url,
+            "format": extractExt(mov_url).toUpperCase(),
             "isNative": true
           }]
         }]

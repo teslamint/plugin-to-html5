@@ -1,14 +1,16 @@
 addKiller("SKCommsVideo", {
   "canKill": function(data) {
+    data.onsite = false;
+    if (/v\.nate\.com\/player2\/mp3\.swf/.test(data.src)) {data.onsite = true; return true;}
     if (/dbi\.video\.cyworld(\.nate)?\.com/.test(data.src)) return true;
     if (/v\.(nate|egloos|empas)\.com/.test(data.src)) return true;
     return false;
   },
 
   "process": function(data, callback) {
-    var flashvars = parseFlashVariables(data.params.flashvars);
     // nate video
-    if (flashvars.mov_id) {
+    if (data.onsite) {
+      var flashvars = parseFlashVariables(data.params.flashvars);
       if (flashvars.v_key) {
         this.processNateVideoXml(flashvars.mov_id, flashvars.v_key, callback);
       } else {
@@ -17,7 +19,7 @@ addKiller("SKCommsVideo", {
     // embedded video player (egloos, cyworld, etc.)
     } else {
       var mov_id, blogid, serial;
-      var match = data.src.replace(/\|/g, "%7C").match(/\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/ig);
+      var match = data.src.replace(/\|/g, "%7C").match(/\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/);
       if (match) {
         blogid = match[1];
         serial = match[2];

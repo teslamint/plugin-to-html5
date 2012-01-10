@@ -8,17 +8,16 @@ addKiller("SKCommsVideo", {
 
   "process": function(data, callback) {
     var flashvars = parseFlashVariables(data.params.flashvars);
-    var mov_id = flashvars.mov_id, v_key = flashvars.v_key;
     // nate video
-    if (mov_id) {
-      if (v_key) {
-        this.processNateVideoXml(mov_id, v_key, callback);
+    if (flashvars.mov_id) {
+      if (flashvars.v_key) {
+        this.processNateVideoXml(flashvars.mov_id, flashvars.v_key, callback);
       } else {
-        this.processNateVideoID(mov_id, callback);
+        this.processNateVideoID(flashvars.mov_id, callback);
       }
     // embedded video player (egloos, cyworld, etc.)
     } else {
-      var blogid, serial;
+      var mov_id, blogid, serial;
       var match = data.src.replace(/\|/g, "%7C").match(/\/(0|[a-z]\d+)%7C(\d+)\/(\d+)/ig);
       if (match) {
         blogid = match[1];

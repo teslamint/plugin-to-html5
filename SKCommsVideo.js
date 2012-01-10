@@ -19,7 +19,7 @@ addKiller("SKCommsVideo", {
     // embedded video player (egloos, cyworld, etc.)
     } else {
       var mov_id, blogid, serial;
-      var match = data.src.replace(/\|/g, "%7C").match(/\/([a-z]?\d+)%7C(\d+)\/(\d+)/);
+      var match = data.src.replace(/\|/g, "%7C").match(/\/([a-z]?[0-9]+)%7C([0-9]+)\/([0-9]+)/);
       if (match) {
         blogid = match[1];
         serial = match[2];

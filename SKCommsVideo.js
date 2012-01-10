@@ -1,6 +1,6 @@
 addKiller("SKCommsVideo", {
   "canKill": function(data) {
-    var match = /(dbi\.video\.cyworld|v\.nate|v\.egloos)\.com/.exec(data.src);
+    var match = /(dbi\.video|v)\.(cyworld\.nate|cyworld|nate|empas|egloos)\.com/ig.exec(data.src);
     if (match) {
       return true;
     } else return false;
@@ -68,7 +68,8 @@ addKiller("SKCommsVideo", {
               "format": extractExt(mov_url).toUpperCase(),
               "isNative": true
             }]
-          }]
+          }],
+          "isAudio": false
         });
       }
     };

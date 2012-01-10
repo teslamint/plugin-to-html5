@@ -48,13 +48,12 @@ addKiller("SKCommsVideo", {
         // fallback
         _this.processNateVideoID(mov_id, callback);
       } else {
-        var title = result.getElementsByTagName("title")[0].textContent;
         var org_url = result.getElementsByTagName("org_url")[0].textContent;
         var org_name = "Nate";
         var mov_url = decodeURIComponent(result.getElementsByTagName("mov_url")[0].textContent);
-        var thumb_url = result.getElementsByTagName("master_thumbnail")[0].getElementsByTagName("url")[0].textContent;
+        var thumb_url = result.getElementsByTagName("master_widethumbnail")[0].getElementsByTagName("url")[0].textContent;
         if (!thumb_url) {
-          thumb_url = result.getElementsByTagName("master_widethumbnail")[0].getElementsByTagName("url")[0].textContent;
+          thumb_url = result.getElementsByTagName("master_thumbnail")[0].getElementsByTagName("url")[0].textContent;
         }
 
         callback({

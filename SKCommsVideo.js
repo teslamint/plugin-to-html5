@@ -37,35 +37,42 @@ addKiller("SKCommsVideo", {
   "processNateVideoXml": function(mov_id, v_key, callback) {
     var url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key + "&type=xml";
     var xhr = new XMLHttpRequest();
+    _this = this;
     xhr.open('GET', url, true);
     xhr.onload = function(event) {
       var result = event.target.responseXML.getElementsByTagName("movie")[0];
       var siteinfo = [];
+      
+      var errorCode = result.getElementsByTagName("errorCode")[0].textContent;
+      if (errorCode != "0") {
+        // fallback
+        _this.processNateVideoID(mov_id, callback);
+      } else {
+        var title = result.getElementsByTagName("title")[0].textContent;
+        var org_url = result.getElementsByTagName("org_url")[0].textContent;
+        var org_name = "Nate";
+        var mov_url = decodeURIComponent(result.getElementsByTagName("mov_url")[0].textContent);
+        var thumb_url = result.getElementsByTagName("master_thumbnail")[0].getElementsByTagName("url")[0].textContent;
+        if (!thumb_url) {
+          thumb_url = result.getElementsByTagName("master_widethumbnail")[0].getElementsByTagName("url")[0].textContent;
+        }
 
-      var title = result.getElementsByTagName("title")[0].textContent;
-      var org_url = result.getElementsByTagName("org_url")[0].textContent;
-      var org_name = "Nate";
-      var mov_url = decodeURIComponent(result.getElementsByTagName("mov_url")[0].textContent);
-      var thumb_url = result.getElementsByTagName("master_thumbnail")[0].getElementsByTagName("url")[0].textContent;
-      if (!thumb_url) {
-        thumb_url = result.getElementsByTagName("master_widethumbnail")[0].getElementsByTagName("url")[0].textContent;
-      }
-
-      callback({
-        "playlist": [{
-          "title": title,
-          "poster": thumb_url,
-          "siteinfo": [{
-            "name": org_name,
-            "url": org_url
-          }],
-          "sources": [{
-            "url": mov_url,
-            "format": extractExt(mov_url).toUpperCase(),
-            "isNative": true
+        callback({
+          "playlist": [{
+            "title": title,
+            "poster": thumb_url,
+            "siteinfo": [{
+              "name": org_name,
+              "url": org_url
+            }],
+            "sources": [{
+              "url": mov_url,
+              "format": extractExt(mov_url).toUpperCase(),
+              "isNative": true
+            }]
           }]
-        }]
-      });
+        });
+      }
     };
     xhr.send(null);
   },

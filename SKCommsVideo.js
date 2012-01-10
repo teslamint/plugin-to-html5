@@ -1,7 +1,7 @@
 addKiller("SKCommsVideo", {
   "canKill": function(data) {
-    if (data.src.test(/dbi\.video\.cyworld(\.nate)?\.com/)) return true;
-    if (data.src.test(/v\.(nate|egloos|empas)\.com/)) return true;
+    if (/dbi\.video\.cyworld(\.nate)?\.com/.test(data.src)) return true;
+    if (/v\.(nate|egloos|empas)\.com/.test(data.src)) return true;
     return false;
   },
 

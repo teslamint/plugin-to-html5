@@ -30,6 +30,7 @@ addKiller("SKCommsVideo", {
           this.processNateVideoID(mov_id, callback);
         }
       }
+      else return;
     }
   },
 
@@ -41,7 +42,6 @@ addKiller("SKCommsVideo", {
     xhr.open('GET', url, true);
     xhr.onload = function(event) {
       var result = event.target.responseXML.getElementsByTagName("movie")[0];
-      var siteinfo = [];
       
       var errorCode = result.getElementsByTagName("errorCode")[0].textContent;
       if (errorCode != "0") {

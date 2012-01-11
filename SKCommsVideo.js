@@ -45,6 +45,7 @@ addKiller("SKCommsVideo", {
   // flash video via Nate video
   "processXML": function(result, callback) {
     var errorCode = result.getElementsByTagName("errorCode")[0].textContent;
+    _this = this;
     if (errorCode) {
       // fallback
       _this.processNateVideoID(mov_id, callback);

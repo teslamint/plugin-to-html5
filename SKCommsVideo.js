@@ -12,14 +12,22 @@ addKiller("SKCommsVideo", {
     if (data.onsite) {
       var flashvars = parseFlashVariables(data.params.flashvars);
       if (flashvars.v_key) {
-        this.processNateVideoXml(flashvars.mov_id, flashvars.v_key, callback);
+        var url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key + "&type=xml";
+        var xhr = new XMLHttpRequest();
+        _this = this;
+        xhr.open('GET', url, true);
+        xhr.onload = function(event) {
+          var result = event.target.responseXML.getElementsByTagName("movie")[0];
+          _this.processXML(result, callback);
+        };
+        xhr.send(null);
       } else {
         this.processNateVideoID(flashvars.mov_id, callback);
       }
     // embedded video player (egloos, cyworld, etc.)
     } else {
       var mov_id, blogid, serial;
-      var match = data.src.replace(/\|/g, "%7C").match(/\/([a-z]?[0-9]+)%7C([0-9]+)\/([0-9]+)/);
+      var match = data.src.replace("|", "%7C").match(/\/([a-z]?[0-9]+)%7C([0-9]+)\/([0-9]+)/);
       if (match) {
         blogid = match[1];
         serial = match[2];
@@ -35,46 +43,37 @@ addKiller("SKCommsVideo", {
   },
 
   // flash video via Nate video
-  "processNateVideoXml": function(mov_id, v_key, callback) {
-    var url = "http://v.nate.com/movie_url.php?mov_id=" + mov_id + "&v_key=" + v_key + "&type=xml";
-    var xhr = new XMLHttpRequest();
-    _this = this;
-    xhr.open('GET', url, true);
-    xhr.onload = function(event) {
-      var result = event.target.responseXML.getElementsByTagName("movie")[0];
-      
-      var errorCode = result.getElementsByTagName("errorCode")[0].textContent;
-      if (errorCode != "0") {
-        // fallback
-        _this.processNateVideoID(mov_id, callback);
-      } else {
-        var org_url = result.getElementsByTagName("org_url")[0].textContent;
-        var org_name = "Nate";
-        var mov_url = decodeURIComponent(result.getElementsByTagName("mov_url")[0].textContent);
-        var thumb_url = result.getElementsByTagName("master_widethumbnail")[0].getElementsByTagName("url")[0].textContent;
-        if (!thumb_url) {
-          thumb_url = result.getElementsByTagName("master_thumbnail")[0].getElementsByTagName("url")[0].textContent;
-        }
-
-        callback({
-          "playlist": [{
-            "title": title,
-            "poster": thumb_url,
-            "siteinfo": [{
-              "name": org_name,
-              "url": org_url
-            }],
-            "sources": [{
-              "url": mov_url,
-              "format": extractExt(mov_url).toUpperCase(),
-              "isNative": true
-            }]
-          }],
-          "isAudio": false
-        });
+  "processXML": function(result, callback) {
+    var errorCode = result.getElementsByTagName("errorCode")[0].textContent;
+    if (errorCode) {
+      // fallback
+      _this.processNateVideoID(mov_id, callback);
+    } else {
+      var org_url = result.getElementsByTagName("org_url")[0].textContent;
+      var org_name = "Nate";
+      var mov_url = decodeURIComponent(result.getElementsByTagName("mov_url")[0].textContent);
+      var thumb_url = result.getElementsByTagName("master_widethumbnail")[0].getElementsByTagName("url")[0].textContent;
+      if (!thumb_url) {
+        thumb_url = result.getElementsByTagName("master_thumbnail")[0].getElementsByTagName("url")[0].textContent;
       }
-    };
-    xhr.send(null);
+
+      callback({
+        "playlist": [{
+          "title": title,
+          "poster": thumb_url,
+          "siteinfo": [{
+            "name": org_name,
+            "url": org_url
+          }],
+          "sources": [{
+            "url": mov_url,
+            "format": extractExt(mov_url).toUpperCase(),
+            "isNative": true
+          }]
+        }],
+        "isAudio": false
+      });
+    }
   },
 
   // mobile video via Nate

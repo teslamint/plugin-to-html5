@@ -1,65 +1,65 @@
 addKiller("BBC", {
 
 "canKill": function(data) {
-	return data.location.indexOf("bbc.co.uk") !== -1;
+	return /^http:\/\/emp\.bbci\.co\.uk\/.*emp\.swf/.test(data.src);
 },
 
 "process": function(data, callback) {
-	if( !this.videoInfo )
-		this.videoInfo = data.params.externalidentifier;
+	var flashvars = parseFlashVariables(data.params.flashvars);
+	var playlistURL = decodeURIComponent(flashvars.playlist);
 	
-	if(!/emp.swf/.test(data.src)) {
-		return;
+	if(playlistURL === "undefined") { // BBC bug
+		playlistURL = data.location.replace(/^http:\/\/www/, "http://playlists").replace(/[#?].*$/, "") + "A/playlist.sxml";
 	}
 	
-	var flashvars = parseFlashVariables(data.params.flashvars);
-
-	var url = "http://open.live.bbc.co.uk/mediaselector/4/jsfunc/stream/" + this.videoInfo + "/processJSON/";
-	this.videoInfo = null;
-	
-	var processJSON = this.processJSON;
-	var posterURL = decodeURIComponent(flashvars.holdingImage);	
-	var title = data.title;
-		
 	var xhr = new XMLHttpRequest();
-	xhr.open('GET', url, true);
-	xhr.onload = function() {
+	xhr.open("GET", playlistURL, true);
+	xhr.addEventListener("load", function(event) {
+		var xml = event.target.responseXML;
+		var mediator = xml.getElementsByTagName("mediator")[0];
+		if(!mediator) return;
 		
-		var processJSON = function(data) {
-			if( data.result != 'ok' ) 
-				return;
-				 
-			var siteInfo, sources;
-			
-			sources = [];
-			
-			data.media.forEach( function( media, i ) {
-				if( !(media.connection instanceof Array) && typeof(media['connection']) != undefined )
-					return;
-					
-				var connection = media.connection[0];
-
-				if( typeof(connection['protocol']) != undefined && connection.protocol != 'http' )
-					return;
-
-				if( connection.href && media.bitrate && media.height )
-				   sources.push({"url": connection.href , "format":  media.bitrate + "k MP4", "height": media.height, "isNative": true});		
-			});
-			
-			callback({
-				"loadAfter": false,
-				"playlist": [{
-					"title": title,
-					"poster": posterURL,
-					"sources": sources				
-			 }]});
-
+		var track = {};
+		var title = xml.getElementsByTagName("title")[0];
+		if(title) track.title = title.textContent;
 		
-		};
+		var links = xml.getElementsByTagName("link");
+		for(var i = 0; i < links.length; i++) {
+			if(links[i].getAttribute("rel") === "holding") {
+				track.poster = links[i].getAttribute("href");
+				break;
+			}
+		}
 		
-		eval(xhr.responseText);
-	};
+		var xhr = new XMLHttpRequest();
+		xhr.open("GET", "http://open.live.bbc.co.uk/mediaselector/4/jsfunc/stream/" + mediator.getAttribute("identifier") + "/processJSON/", true);
+		// Can also use /mtis instead of /jsfunc to get an XML response; JSON should be marginally faster
+		xhr.addEventListener("load", function() {
+			var processJSON = function(data) {
+				if(data.result !== "ok") return;
+				
+				var sources = [];
+				data.media.forEach(function(media) {
+					var connection = media.connection[0];
+					if(!connection || connection.protocol !== "http" || !connection.href) return;
+					sources.push({
+						"url": connection.href,
+						"format":  media.bitrate + "k MP4",
+						"height": parseInt(media.height),
+						"isNative": true
+					});
+				});
+				if(sources.length === 0) return;
+				track.sources = sources;
+				callback({"playlist": [track]});
+			};
+			
+			eval(xhr.responseText);
+			
+		}, false);
+		xhr.send(null);
+	}, false);
 	xhr.send(null);
 }
-	
+
 });

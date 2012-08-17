@@ -2,7 +2,7 @@ addKiller("Flash", {
 
 "canKill": function(data) {
 	if(data.type !== "application/x-shockwave-flash") return false;
-	var match = /(?:^|&)(file|load|playlistfile|src|mp3|mp3url|soundFile|soundUrl|url|file_url|wmvUrl|flvUrl)=/.exec(data.params.flashvars);
+	var match = /(?:^|&)(file|load|playlistfile|src|source|video|mp3|mp3url|soundFile|soundUrl|url|file_url|sampleURL|wmvUrl|flvUrl)=/.exec(data.params.flashvars);
 	if(match) {data.file = match[1]; return true;}
 	match = /[?&](file|mp3|playlist_url)=/.exec(data.src);
 	if(match) {data.hash = match[1]; return true;}
@@ -11,7 +11,7 @@ addKiller("Flash", {
 
 "process": function(data, callback) {
 	var flashvars = parseFlashVariables(data.params.flashvars);
-	if(/^rmtp/.test(flashvars.streamer)) return;
+	if(/^rtmp/.test(flashvars.streamer)) return;
 	
 	// Get media and poster URL
 	var sourceURL, posterURL;
@@ -27,6 +27,7 @@ addKiller("Flash", {
 			break;
 		default:
 			if(flashvars.image) posterURL = decodeURIComponent(flashvars.image);
+			else if(flashvars.preloadImage) posterURL = decodeURIComponent(flashvars.preloadImage);
 		}
 	} else {
 		sourceURL = new RegExp("[?&]" + data.hash + "=([^&]*)").exec(data.src);
@@ -90,7 +91,7 @@ addKiller("Flash", {
 		if(!info.isAudio) audioOnly = false;
 	}
 	
-	callback({
+	if(sources.length !== 0 || posterURL !== undefined) callback({
 		"playlist": [{"poster": posterURL, "sources": sources}],
 		"audioOnly": audioOnly
 	});

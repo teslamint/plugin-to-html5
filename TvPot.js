@@ -37,15 +37,15 @@ killer.processVideoID = function(videoID, callback) {
 		var posterUrl = result.getElementsByTagName("THUMB_URL")[0].textContent;
     callback({
       "playlist": [{
-      "title": title,
-      "poster": posterUrl,
-      "siteinfo": [{
+    "title": title,
+    "poster": posterUrl,
+    "siteinfo": [{
     	"name": "TvPot",
     	"url": link
     	}],
         "sources": [{
           "url": "http://rt.flvs.daum.net:8080/RTES/Redirect?vid="+videoID+"",
-          "format": "MP4",
+      "format": "MP4",
           "isNative": true
         }]
       }]

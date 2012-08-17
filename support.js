@@ -66,13 +66,13 @@ function extractExt(url) {
 	url = url.substring(url.lastIndexOf("/", i) + 1, i);
 	i = url.lastIndexOf(".");
 	if(i === -1) return "";
-	return url.substring(i + 1).toLowerCase();
+	return url.substring(i + 1).toLowerCase().trimRight();
 }
 
 function parseXSPlaylist(playlistURL, baseURL, altPosterURL, track, handlePlaylistData) {
 	var xhr = new XMLHttpRequest();
-	xhr.open('GET', playlistURL, true);
-	xhr.onload = function() {
+	xhr.open("GET", playlistURL, true);
+	xhr.addEventListener("load", function() {
 		var x = xhr.responseXML.getElementsByTagName("track");
 		var playlist = [];
 		var audioOnly = true;
@@ -100,6 +100,10 @@ function parseXSPlaylist(playlistURL, baseURL, altPosterURL, track, handlePlayli
 			if(i === 0 && !posterURL) posterURL = altPosterURL;
 			list = x[I].getElementsByTagName("title");
 			if(list.length > 0) title = list[0].textContent;
+			else {
+				list = x[I].getElementsByTagName("annotation");
+				if(list.length > 0) title = list[0].textContent;
+			}
 			
 			playlist.push({
 				"sources": [info],
@@ -108,6 +112,6 @@ function parseXSPlaylist(playlistURL, baseURL, altPosterURL, track, handlePlayli
 			});
 		}
 		handlePlaylistData({"playlist": playlist, "startTrack": startTrack, "audioOnly": audioOnly});
-	};
+	}, false);
 	xhr.send(null);
 }

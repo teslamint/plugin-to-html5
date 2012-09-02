@@ -17,7 +17,7 @@ addKiller("ImbcNews", {
 		var url = "http://"+ match[1] +".mp4/playlist.m3u8?wowzaplaystart="+ start_time +"&wowzaplayduration="+ (end_time - start_time);
 		callback({
 			"playlist": [{
-				"poster": imgUrl,
+				"poster": img_url,
 				"sources": [{
 					"url": url,
 					"format": "MP4",

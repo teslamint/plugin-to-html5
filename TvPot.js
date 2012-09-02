@@ -1,4 +1,4 @@
-var killer = new Object();
+var killer = {};
 addKiller("TvPot", killer);
 
 killer.canKill = function(data) {
@@ -8,18 +8,19 @@ killer.canKill = function(data) {
 };
 
 killer.process = function(data, callback) {
+  var match;
   if(data.onsite) {
     var flashvars = parseFlashVariables(data.params.flashvars);
     if(flashvars.vid) this.processVideoID(flashvars.vid, callback);
     // fallback
-    var match = data.src.match(/clip\/jloader2\.swf\?([^&]+&)?vid\=([^&?]+)/);
+    match = data.src.match(/clip\/jloader2\.swf\?([^&]+&)?vid\=([^&?]+)/);
     if(match) {
       this.processVideoID(match[2], callback);
     }
     return;
   } else {
     // Embedded TvPot video
-    var match = data.src.match(/flvs\.daum\.net\/flvPlayer\.swf\?([^&]+&)?vid\=([^&?]+)/);
+    match = data.src.match(/flvs\.daum\.net\/flvPlayer\.swf\?([^&]+&)?vid\=([^&?]+)/);
     if(match) {
       this.processVideoID(match[2], callback);
     }
@@ -40,9 +41,9 @@ killer.processVideoID = function(videoID, callback) {
     "title": title,
     "poster": posterUrl,
     "siteinfo": [{
-    	"name": "TvPot",
-    	"url": link
-    	}],
+      "name": "TvPot",
+      "url": link
+      }],
         "sources": [{
           "url": "http://rt.flvs.daum.net:8080/RTES/Redirect?vid="+videoID+"",
       "format": "MP4",

@@ -96,7 +96,7 @@ addKiller("SKCommsVideo", {
       "playlist": [{
         "sources": [{
           "url": "http://ebc.egloos.com/exec/mobile/play_movile_video.php?movieid=" + videoid + "&blogid=" + blogid + "&serial=" + serial + "",
-          "format": "MP4"
+          "format": "MP4",
           "isNative": true
         }]
       }]

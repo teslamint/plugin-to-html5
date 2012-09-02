@@ -1,5 +1,17 @@
 addKiller("YouTube", {
 
+"getInfo": function(itag) {
+	if(itag === "38") return {"format": "4K MP4", "height": 2304, "isNative": true};
+	if(itag === "37") return {"format": "1080p MP4", "height": 1080, "isNative": true};
+	if(itag === "22") return {"format": "720p MP4", "height": 720, "isNative": true};
+	if(itag === "18") return {"format": "360p MP4", "height": 360, "isNative": true};
+	if(canPlayFLV) {
+		if(itag === "35") return {"format": "480p FLV", "height": 480, "isNative": false};
+		if(itag === "5") return {"format": "240p FLV", "height": 240, "isNative": false};
+	}
+	return false;
+},
+
 "canKill": function(data) {
 	if(/^https?:\/\/s\.ytimg\.com\//.test(data.src)) return true;
 	if(/^https?:\/\/(?:www\.)?youtube(?:-nocookie|\.googleapis)?\.com\//.test(data.src)) {data.embed = true; return true;}
@@ -72,43 +84,19 @@ addKiller("YouTube", {
 },
 
 "processFlashVars": function(flashvars, callback) {
-	if(!flashvars.url_encoded_fmt_stream_map || flashvars.ps === "live") return;
+	if(flashvars.ps === "live") return;
 	var formatList = decodeURIComponent(flashvars.url_encoded_fmt_stream_map).split(",");
 	
 	var sources = [];
-	
-	/* fmt values:
-	MP4 (AVC1/MP4A): 38 (2304p), 37 (1080p), 22 (720p), 18 (360p)
-	FLV (AVC1/MP4A): 35 (480p), 34 (360p)
-	FLV (FLV1/MP3): 5 (240p)
-	WebM (VP8/Vorbis): 45 (720p), 44 (480p), 43 (360p)
-	*/
-	var x, videoURL;
+	var x;
 	for(var i = 0; i < formatList.length; i++) {
 		x = parseFlashVariables(formatList[i]);
-		videoURL = decodeURIComponent(x.url) + "&title=" + encodeURIComponent(flashvars.title);
-		if(x.sig) videoURL += "&signature=" + x.sig;
-		if(x.itag === "38") {
-			sources.push({"url": videoURL, "format": "4K MP4", "height": 2304, "isNative": true});
-		} else if(x.itag === "37") {
-			sources.push({"url": videoURL, "format": "1080p MP4", "height": 1080, "isNative": true});
-		} else if(x.itag === "22") {
-			sources.push({"url": videoURL, "format": "720p MP4", "height": 720, "isNative": true});
-		} else if(x.itag === "18") {
-			sources.push({"url": videoURL, "format": "360p MP4", "height": 360, "isNative": true});
-		} else if(canPlayFLV && x.itag === "35") {
-			sources.push({"url": videoURL, "format": "480p FLV", "height": 480, "isNative": false});
-		} else if(canPlayFLV && x.itag === "34") {
-			sources.push({"url": videoURL, "format": "360p FLV", "height": 360, "isNative": false});
-		} else if(canPlayFLV && x.itag === "5") {
-			sources.push({"url": videoURL, "format": "240p FLV", "height": 240, "isNative": false});
-		} /*else if(canPlayWebM && x.itag === "45") {
-			sources.push({"url": videoURL, "format": "720p WebM", "height": 720, "isNative": false});
-		} else if(canPlayWebM && x.itag === "44") {
-			sources.push({"url": videoURL, "format": "480p WebM", "height": 480, "isNative": false});
-		} else if(canPlayWebM && x.itag === "43") {
-			sources.push({"url": videoURL, "format": "360p WebM", "height": 360, "isNative": false});
-		}*/
+		var source = this.getInfo(x.itag);
+		if(source) {
+			source.url = decodeURIComponent(x.url) + "&title=" + encodeURIComponent(flashvars.title);
+			if(x.sig) source.url += "&signature=" + x.sig;
+			sources.push(source);
+		}
 	}
 	
 	var posterURL;
@@ -137,7 +125,7 @@ addKiller("YouTube", {
 				callback(videoData);
 			};
 			_this.processFlashVars(flashvars, callbackForEmbed);
-		} else { // happens if YT just removed content and didn't update its playlists yet
+		} else { // happens e.g. if YT just removed content and didn't update its playlists yet
 			callback({"playlist": [null]});
 		}
 	}, false);
@@ -147,25 +135,6 @@ addKiller("YouTube", {
 "processPlaylistID": function(playlistID, flashvars, callback) {
 	var videoIDList = [];
 	var _this = this;
-	
-	var init = function() {
-		switch(playlistID.substring(0,2)) {
-		case "PL":
-		case "SP":
-			loadAPIList("https://gdata.youtube.com/feeds/api/playlists/" + playlistID.substring(2), 1, false);
-			break;
-		case "UL":
-			if(flashvars.creator) loadAPIList("https://gdata.youtube.com/feeds/api/users/" + flashvars.creator + "/uploads", 1, true);
-			else if(flashvars.ptchn) loadAPIList("https://gdata.youtube.com/feeds/api/users/" + flashvars.ptchn + "/uploads", 1, true);
-			else {
-				var xhr = new XMLHttpRequest();
-				xhr.open("GET", "https://www.youtube.com/get_video_info?&video_id=" + playlistID.substring(2) + "&eurl=http%3A%2F%2Fwww%2Eyoutube%2Ecom%2F", true);
-				xhr.addEventListener("load", function() {loadAPIList("https://gdata.youtube.com/feeds/api/users/" + parseFlashVariables(xhr.responseText).author + "/uploads", 1, true);}, false);
-				xhr.send(null);
-			}
-			break;
-		}
-	};
 	
 	var loadAPIList = function(playlistURL, startIndex, reverse) {
 		var xhr = new XMLHttpRequest();
@@ -233,6 +202,22 @@ addKiller("YouTube", {
 		return;
 	};
 	
-	init();
+	switch(playlistID.substring(0,2)) {
+	case "PL":
+	case "SP":
+		loadAPIList("https://gdata.youtube.com/feeds/api/playlists/" + playlistID.substring(2), 1, false);
+		break;
+	case "UL":
+		if(flashvars.creator) loadAPIList("https://gdata.youtube.com/feeds/api/users/" + flashvars.creator + "/uploads", 1, true);
+		else if(flashvars.ptchn) loadAPIList("https://gdata.youtube.com/feeds/api/users/" + flashvars.ptchn + "/uploads", 1, true);
+		else {
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", "https://www.youtube.com/get_video_info?&video_id=" + playlistID.substring(2) + "&eurl=http%3A%2F%2Fwww%2Eyoutube%2Ecom%2F", true);
+			xhr.addEventListener("load", function() {loadAPIList("https://gdata.youtube.com/feeds/api/users/" + parseFlashVariables(xhr.responseText).author + "/uploads", 1, true);}, false);
+			xhr.send(null);
+		}
+		break;
+	}
 }
+
 });

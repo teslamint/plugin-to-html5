@@ -3,7 +3,7 @@ addKiller("TvPot", killer);
 
 killer.canKill = function(data) {
   if(data.src.indexOf("flvs.daum.net/") !== -1) {data.onsite = false; return true;}
-  if(data.src.search(/clip\/jloader2\.swf/) !== -1) {data.onsite = true; return true;}
+  if(data.src.search(/clip\/(j|m)loader2\.swf/) !== -1) {data.onsite = true; return true;}
   return false;
 };
 
@@ -13,14 +13,14 @@ killer.process = function(data, callback) {
     var flashvars = parseFlashVariables(data.params.flashvars);
     if(flashvars.vid) this.processVideoID(flashvars.vid, callback);
     // fallback
-    match = data.src.match(/(m|clip\/j)loader2\.swf\?([^&]+&)?vid\=([^&?]+)/);
+    match = data.src.match(/(j|m)loader2\.swf\?([^&]+&)?vid\=([^&?]+)/);
     if(match) {
       this.processVideoID(match[3], callback);
     }
     return;
   } else {
     // Embedded TvPot video
-    match = data.src.match(/flvs\.daum\.net\/flvPlayer\.swf\?([^&]+&)?vid\=([^&?]+)/);
+    match = data.src.match(/flvPlayer\.swf\?([^&]+&)?vid\=([^&?]+)/);
     if(match) {
       this.processVideoID(match[2], callback);
     }

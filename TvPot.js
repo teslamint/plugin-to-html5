@@ -2,16 +2,16 @@ var killer = {};
 addKiller("TvPot", killer);
 
 killer.canKill = function(data) {
-  if(data.src.indexOf("daum.net/") !== -1) {data.onsite = false; return true;}
+  if(data.src.indexOf("tvpot.daum.net/") !== -1) {data.onsite = false; return true;}
   if(data.src.search(/(j|m)loader2\.swf/) !== -1) {data.onsite = true; return true;}
   return false;
 };
 
 killer.process = function(data, callback) {
   var match;
+  var flashvars = parseFlashVariables(data.params.flashvars);
+  if(flashvars.vid) this.processVideoID(flashvars.vid, callback);
   if(data.onsite) {
-    var flashvars = parseFlashVariables(data.params.flashvars);
-    if(flashvars.vid) this.processVideoID(flashvars.vid, callback);
     // fallback
     match = data.src.match(/(j|m)loader2\.swf\?([^&]+&)?vid\=([^&?]+)/);
     if(match) {
@@ -36,21 +36,21 @@ killer.processVideoID = function(videoID, callback) {
 		var title = result.getElementsByTagName("TITLE")[0].textContent;
 		var link = result.getElementsByTagName("ORG_URL")[0].textContent;
 		var posterUrl = result.getElementsByTagName("THUMB_URL")[0].textContent;
-    callback({
-      "playlist": [{
-        "title": title,
-        "poster": posterUrl,
-        "siteinfo": [{
-          "name": "TvPot",
-          "url": link
-        }],
-        "sources": [{
-          "url": "http://rt.flvs.daum.net:8080/RTES/Redirect?vid="+videoID+"",
-          "format": "MP4",
-          "isNative": true
-        }]
-      }]
-    });
+	    callback({
+	      "playlist": [{
+	        "title": title,
+	        "poster": posterUrl,
+	        "siteinfo": [{
+	          "name": "TvPot",
+	          "url": link
+	        }],
+	        "sources": [{
+	          "url": "http://rt.flvs.daum.net:8080/RTES/Redirect?vid="+videoID+"",
+	          "format": "MP4",
+	          "isNative": true
+	        }]
+	      }]
+	    });
 	};
 	xhr.send(null);
 };

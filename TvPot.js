@@ -2,8 +2,8 @@ var killer = {};
 addKiller("TvPot", killer);
 
 killer.canKill = function(data) {
-  if(data.src.indexOf("flvs.daum.net/") !== -1) {data.onsite = false; return true;}
-  if(data.src.search(/clip\/(j|m)loader2\.swf/) !== -1) {data.onsite = true; return true;}
+  if(data.src.indexOf("daum.net/") !== -1) {data.onsite = false; return true;}
+  if(data.src.search(/(j|m)loader2\.swf/) !== -1) {data.onsite = true; return true;}
   return false;
 };
 

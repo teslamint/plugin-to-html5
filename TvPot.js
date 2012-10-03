@@ -13,9 +13,9 @@ killer.process = function(data, callback) {
     var flashvars = parseFlashVariables(data.params.flashvars);
     if(flashvars.vid) this.processVideoID(flashvars.vid, callback);
     // fallback
-    match = data.src.match(/clip\/jloader2\.swf\?([^&]+&)?vid\=([^&?]+)/);
+    match = data.src.match(/clip\/(j|m)loader2\.swf\?([^&]+&)?vid\=([^&?]+)/);
     if(match) {
-      this.processVideoID(match[2], callback);
+      this.processVideoID(match[3], callback);
     }
     return;
   } else {
